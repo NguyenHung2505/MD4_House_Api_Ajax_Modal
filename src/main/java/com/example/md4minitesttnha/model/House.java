@@ -22,6 +22,7 @@ public class House {
     @Min(value = 1 ,message = "nho nhat la 1")
     @Max(value = 3, message = "lon nhat la 10")
     private int bathrom;
+    @Min(value = 1 ,message = "nho nhat la 1")
     private int price;
     private String image;
 

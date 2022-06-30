@@ -9,10 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin("*")
@@ -25,22 +29,26 @@ public class HouseController {
         return new ResponseEntity(houseService.findAll(), HttpStatus.OK);
     }
 
-    @PostMapping("") // them moi , luu
+// them moi , luu + uploadFile
 //    @valid de duyet qua validate
-    public ResponseEntity<House> add(@Valid @RequestBody House house) {
+    @PostMapping
+    public ResponseEntity<House> add(@Valid @RequestParam("file") MultipartFile file, House house) {
+        String fileName = file.getOriginalFilename();
+        house.setImage(fileName);
+        try {
+            file.transferTo(new File("D:\\modum4\\MD4-MinitesTTNha\\src\\main\\resources\\image\\" + fileName));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
         houseService.save(house);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK) ;
     }
 
-
     // tim theo ten
-
     @GetMapping("/search-name")
     public ResponseEntity<Iterable<House>> findAllByNameContaining(String name) {
         return new ResponseEntity<>(houseService.findAllByNameContaining(name), HttpStatus.OK);
     }
-
-
 
     //   them phan nay de chay validate
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -54,6 +62,65 @@ public class HouseController {
         });
         return errors;
     }
+
+    // edit , sua
+//    @PutMapping("/{id}")
+//    public ResponseEntity<House> updateCustomer(@PathVariable Long id, @RequestBody House house) {
+//        Optional<House> housetOptional = houseService.findById(id);
+//        if (!housetOptional.isPresent()) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//        house.setId(housetOptional.get().getId());
+//        houseService.save(house);
+//        return new ResponseEntity<>( HttpStatus.OK);
+//    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<House> updateHouse (@RequestParam("file") MultipartFile file, @PathVariable Long id, House house) {
+        String fileName = file.getOriginalFilename();
+        if (fileName.equals("")){
+            house.setImage(houseService.findById(id).get().getImage());
+            try {
+                file.transferTo(new File("D:\\modum4\\MD4-MinitesTTNha\\src\\main\\resources\\image\\" + house.getImage()));
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+        else {
+            house.setImage(fileName);
+            try {
+                file.transferTo(new File("D:\\modum4\\MD4-MinitesTTNha\\src\\main\\resources\\image\\" + fileName));
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+        house.setId(id);
+        houseService.save(house);
+        return new ResponseEntity<>( HttpStatus.OK);
+    }
+
+
+
+    @DeleteMapping("/{id}") // xoa
+    public ResponseEntity<House> deleteHouse(@PathVariable Long id) {
+        Optional<House> houseOptional = houseService.findById(id);
+        if (!houseOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        houseService.remove(id);
+        return new ResponseEntity<>(houseOptional.get(), HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{id}")         //Tìm theo id
+    public ResponseEntity<House> findHouseById(@PathVariable Long id) {
+        Optional<House> house = houseService.findById(id);
+        if (!house.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(house.get(), HttpStatus.OK);
+    }
+
 
 
 }

@@ -45,7 +45,7 @@
                         </li>
                     </ul>
                     <div class="form-inline my-2 my-lg-0">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id="search-name">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Tên muốn tìm" aria-label="Search" id="search-name">
                         <button class="btn btn-outline-success my-2 my-sm-0" onclick="search()">Search</button>
                     </div>
                 </div>
@@ -68,14 +68,12 @@
                 </tr>
                 </thead>
                 <tbody id="list">
-
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-<!--    modal-->
-<!---->
+<!--    modal1-->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -86,22 +84,20 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="addForm">
+                <form id="addForm" enctype="multipart/form-data">
                     <label>Name: </label>
-                    <input type="text" name="name" class="form-control">
+                    <input type="text" name="name" class="form-control" placeholder="Tên">
                     <label>Address: </label>
-                    <input type="text" name="address" class="form-control">
+                    <input type="text" name="address" class="form-control" placeholder="Địa chỉ">
                     <label>Bedrom: </label>
-                    <input type="number" name="bedrom" class="form-control">
+                    <input type="number" name="bedrom" class="form-control" placeholder="Số phòng ngủ">
                     <label>Bathrom: </label>
-                    <input type="number" name="bathrom" class="form-control">
-                    <label>Image: </label>
-                    <input type="text" name="image" class="form-control">
+                    <input type="number" name="bathrom" class="form-control" placeholder="Số phòng tắm">
                     <label>Price: </label>
-                    <input type="number" name="price" class="form-control">
-
+                    <input type="number" name="price" class="form-control" placeholder="Giá phòng">
+                    <label>Image: </label>
+                    <input type="file" name="file" class="form-control" >
                 </form>
-                <!--                <button onclick="save()" class="btn btn-pri">luu</button>-->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -111,7 +107,43 @@
     </div>
 </div>
 
+<!-- modal2-->
+<div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Phòng</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="id">
+                    <label>Name: </label>
+                    <input type="text" name="name" class="form-control" placeholder="Tên" id="ten">
+                    <label>Address: </label>
+                    <input type="text" name="address" class="form-control" placeholder="Địa chỉ" id="diachi">
+                    <label>Bedrom: </label>
+                    <input type="number" name="bedrom" class="form-control" placeholder="Số phòng ngủ" id="spngu">
+                    <label>Bathrom: </label>
+                    <input type="number" name="bathrom" class="form-control" placeholder="Số phòng tắm" id="sptam">
+                    <label>Price: </label>
+                    <input type="number" name="price" class="form-control" placeholder="Giá phòng" id="giaphong">
+                    <label>Image: </label>
+                    <input type="file" name="file" class="form-control" id="anh">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal1" onclick="update()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    let editForm = document.getElementById('editForm')
     let tbody = document.getElementById('list')
     let addForm = document.getElementById('addForm');
     let searchName = document.getElementById('search-name');
@@ -123,9 +155,8 @@
             url: "http://localhost:8081/house",
             success: function (list) {
                 loadTableProduct(list)
-            }
-        });
-    }
+            }});}
+
     function loadTableProduct(list) {
         let str = "";
         console.log(list)
@@ -136,52 +167,40 @@
       <td>${list[i].address}</td>
       <td>${list[i].bedrom}</td>
       <td>${list[i].bathrom}</td>
-      <td>${list[i].image}</td>
+      <td><img src="image/${list[i].image}" alt="" style="height: 50px;width: 50px"></td>
       <td>${list[i].price}</td>
+      <td><button onclick="deleteHouse(${list[i].id})">Delete</button></td>
+      <td><button onclick="showEditForm(${list[i].id})">Edit</button></td>
     </tr>`
         }
         tbody.innerHTML = str;
     }
 
-    // dung modal
+    // dung modal1
     function showAddForm() {
         $("#exampleModal").modal("show");
     }
 
-
     // them moi
     function save(){
         let formData = new FormData(addForm);
-        // console.log(formData.get('name'));
-        let house = {
-            name:formData.get('name'),
-            address: formData.get('address'),
-            bedrom: formData.get('bedrom'),
-            bathrom: formData.get('bathrom'),
-            image: formData.get('image'),
-            price: formData.get('price'),
-
-        }
         $.ajax({
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            type: 'POST',
-            url: 'http://localhost:8081/house',
-            data: JSON.stringify(house),
-            //chuyển kiểu dữ liệu js thành dạng JSON
-
+            enctype: "multipart/form-data",
+            type: "POST",
+            url: "http://localhost:8081/house",
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 1000000,
             success: function () {
-                alert("Thêm mới thành công !!!")
                 loadData()
-                $("#exampleModal").modal("hide");
+                $('#exampleModal').modal('hide');
                 addForm.reset();
-
             },
             error: function (error) {
                 console.log(error)
-                alert("thu lai")
+                alert("nhap sai ! xin nhap lai @@")
             }
         })
     }
@@ -195,13 +214,60 @@
                 loadTableProduct(list)
             }
         });
-
+    }
+    // xoa
+    function deleteHouse(id) {
+        $.ajax({
+            type: "DELETE",
+            url: "http://localhost:8081/house/" + id,
+            success: function () {                                                             //xử lý khi thành công trả về list
+                loadData()
+            }
+        });
     }
 
+    // sua
+    function showEditForm(id) {
+        $("#exampleModal1").modal("show");
 
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8081/house/"+id,
+            success: function (list) {
+                // console.log(list)
+                document.getElementById('id').value = list.id;
+                document.getElementById('ten').value = list.name;
+                document.getElementById('diachi').value = list.address;
+                document.getElementById('spngu').value = list.bedrom;
+                document.getElementById('sptam').value = list.bathrom;
+                document.getElementById('giaphong').value = list.price;
+                document.getElementById('anh').innerHTML = `<img src="image/${list[i].image}" alt="" style="height: 50px;width: 50px">`;
+            }
+        });
+    }
 
+    // save lai sau khi edit
+    function update() {
+        let id = document.getElementById('id').value;
+        let formData = new FormData(editForm);
 
-
+        $.ajax({
+            type:"PUT",
+            enctype:'multipart/form-data',
+            url:"http://localhost:8081/house/"+id,
+            data :formData,
+            processData : false,
+            contentType : false,
+            cache : false,
+            success: function () {
+                loadData()
+                editForm.reset();
+            },
+            error: function (error) {
+                alert("loi ui")
+            }
+        })
+    }
 
 
 </script>
