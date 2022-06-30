@@ -81,11 +81,6 @@ public class HouseController {
         String fileName = file.getOriginalFilename();
         if (fileName.equals("")){
             house.setImage(houseService.findById(id).get().getImage());
-            try {
-                file.transferTo(new File("D:\\modum4\\MD4-MinitesTTNha\\src\\main\\resources\\image\\" + house.getImage()));
-            } catch (IOException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
         }
         else {
             house.setImage(fileName);

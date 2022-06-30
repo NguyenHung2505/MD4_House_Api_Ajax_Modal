@@ -65,6 +65,8 @@
                     <th scope="col">Bathrom</th>
                     <th scope="col">Image</th>
                     <th scope="col">Price</th>
+                    <th scope="col">DELETE</th>
+                    <th scope="col">EDIT</th>
                 </tr>
                 </thead>
                 <tbody id="list">
@@ -136,7 +138,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal1" onclick="update()">Save</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal1" onclick="update()">Update</button>
             </div>
         </div>
     </div>
@@ -167,7 +169,7 @@
       <td>${list[i].address}</td>
       <td>${list[i].bedrom}</td>
       <td>${list[i].bathrom}</td>
-      <td><img src="image/${list[i].image}" alt="" style="height: 50px;width: 50px"></td>
+      <td><img src="image/${list[i].image}" alt="" style="height: 60px;width: 80px"></td>
       <td>${list[i].price}</td>
       <td><button onclick="deleteHouse(${list[i].id})">Delete</button></td>
       <td><button onclick="showEditForm(${list[i].id})">Edit</button></td>
@@ -220,7 +222,7 @@
         $.ajax({
             type: "DELETE",
             url: "http://localhost:8081/house/" + id,
-            success: function () {                                                             //xử lý khi thành công trả về list
+            success: function () {
                 loadData()
             }
         });
@@ -241,7 +243,7 @@
                 document.getElementById('spngu').value = list.bedrom;
                 document.getElementById('sptam').value = list.bathrom;
                 document.getElementById('giaphong').value = list.price;
-                document.getElementById('anh').innerHTML = `<img src="image/${list[i].image}" alt="" style="height: 50px;width: 50px">`;
+                document.getElementById('anh').innerHTML = `<img src="image/${list[i].image}" alt="" style="height: 50PX;width: 50PX">`;
             }
         });
     }
@@ -268,9 +270,6 @@
             }
         })
     }
-
-
 </script>
-
 </body>
 </html>
